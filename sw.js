@@ -1,4 +1,4 @@
-const CACHE = "contas-da-casa-v3";
+const CACHE = "contas-da-casa-v4";
 
 // Só o essencial para abrir offline. As telas de abertura do iPhone ficam de
 // fora de propósito: são 3 MB e o iOS guarda a dele por conta própria.
