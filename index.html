@@ -81,7 +81,7 @@ body{
   font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
   font-size:15px; line-height:1.45;
   -webkit-font-smoothing:antialiased;
-  padding-bottom:104px;
+  padding-bottom:88px;
   overscroll-behavior-y:contain;
 }
 h1,h2,h3{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",Arial,sans-serif; margin:0; text-wrap:balance; letter-spacing:-.01em}
@@ -122,21 +122,70 @@ input,select{font:inherit; color:inherit}
 .grid{
   max-width:980px; margin:0 auto; padding-inline:16px; padding-block:16px 0;
   display:grid; gap:14px;
-  grid-template-areas:"hero" "bills" "tx" "insights";
+  grid-template-areas:"say" "hero" "bills" "tx" "insights";
 }
 @media (min-width:830px){
   .grid{
     grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
-    grid-template-areas:"hero hero" "bills tx" "insights tx";
+    grid-template-areas:"say say" "hero hero" "bills tx" "insights tx";
     align-items:start;
   }
 }
+.area-say{grid-area:say}
 .area-hero{grid-area:hero} .area-bills{grid-area:bills} .area-tx{grid-area:tx} .area-insights{grid-area:insights}
 
 .panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
 .panel-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 16px 0}
 .panel-head h2{font-size:15px; font-weight:700}
 .panel-head .meta{font-size:12px; color:var(--ink-3)}
+
+/* ---------- lancar falando ---------- */
+.say{display:flex; align-items:center; gap:8px; padding:9px 10px 9px 12px}
+.say input{
+  flex:1; min-width:0; background:transparent; border:0; font-size:16px;
+  padding:9px 2px; color:var(--ink);
+}
+.say input::placeholder{color:var(--ink-3)}
+.say input:focus{outline:none}
+.mic{
+  width:42px; height:42px; flex:none; border-radius:999px; border:0;
+  background:var(--accent-soft); color:var(--accent-ink);
+  display:grid; place-items:center;
+}
+.mic svg{width:19px; height:19px; display:block}
+.mic:hover{filter:brightness(.97)}
+.mic[data-ouvindo="true"]{background:var(--out); color:#fff; animation:pulso 1.4s ease-in-out infinite}
+@keyframes pulso{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--out) 55%,transparent)}
+  60%{box-shadow:0 0 0 10px transparent}
+}
+.say-go{
+  flex:none; border:0; border-radius:10px; background:var(--ink); color:var(--surface);
+  padding:9px 15px; font-size:14px; font-weight:600;
+}
+.say-go:disabled{opacity:.4}
+.say-dica{padding:0 14px 11px; font-size:12px; color:var(--ink-3); line-height:1.5}
+.say-dica b{font-weight:500; color:var(--ink-2)}
+.say-card{
+  margin:0 12px 12px; padding:12px 13px; border-radius:12px;
+  background:var(--surface-3); border:1px solid var(--line);
+}
+.say-frase{font-size:12px; color:var(--ink-3); margin:0 0 9px; font-style:italic}
+.say-linha{display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-bottom:11px}
+.say-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:13px;
+  background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px 11px;
+}
+.say-chip.val{font-family:"IBM Plex Mono",monospace; font-weight:600; font-variant-numeric:tabular-nums}
+.say-chip.tipo-out{background:var(--out-soft); border-color:transparent; color:var(--out)}
+.say-chip.tipo-in{background:var(--in-soft); border-color:transparent; color:var(--in)}
+.say-nota{font-size:12.5px; color:var(--ink-2); margin:0 0 11px}
+.say-nota b{font-weight:600}
+.say-acoes{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.say-acoes .btn{flex:0 0 auto; padding:10px 18px; font-size:14px}
+.say-ok{padding:0 14px 12px; font-size:13px; color:var(--in); display:flex; gap:12px; align-items:center}
+.say-ok button{border:0; background:transparent; text-decoration:underline; font-size:13px; color:var(--ink-2); padding:0}
+.say-erro{padding:0 14px 12px; font-size:12.5px; color:var(--out)}
 
 /* ---------- hero ---------- */
 .hero{padding:18px 18px 16px; display:grid; gap:16px}
@@ -243,7 +292,8 @@ input,select{font:inherit; color:inherit}
 .fab{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:30;
   border:0; border-radius:999px; background:var(--accent); color:var(--bg);
-  padding:13px 20px; font-weight:600; font-size:14.5px;
+  width:54px; height:54px; font-weight:400; font-size:27px; line-height:1;
+  display:grid; place-items:center; padding:0 0 3px;
   box-shadow:0 6px 22px -6px color-mix(in srgb,var(--accent) 60%,transparent);
 }
 .fab:hover{filter:brightness(1.08)}
@@ -279,7 +329,7 @@ input,select{font:inherit; color:inherit}
 .btn.ghost{background:var(--surface-2); color:var(--ink-2); flex:0 0 40%}
 .hint{font-size:12px; color:var(--ink-3); margin:-6px 0 12px}
 .foot{max-width:980px; margin:20px auto 0; padding:0 16px; font-size:11.5px; color:var(--ink-3); text-align:center}
-@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
 </style>
 
 <style>
@@ -312,6 +362,25 @@ html{color-scheme:light dark}
 </div>
 
 <main class="grid">
+
+  <section class="panel area-say" aria-label="Lançar falando ou escrevendo">
+    <div class="say">
+      <button type="button" class="mic" id="micBtn" data-ouvindo="false" aria-label="Falar o lançamento" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"></rect>
+          <path d="M5 11a7 7 0 0 0 14 0"></path>
+          <path d="M12 18v3"></path>
+        </svg>
+      </button>
+      <input id="sayInput" autocomplete="off" enterkeyhint="done"
+             placeholder="Fale ou escreva: “conta de luz 187”">
+      <button type="button" class="say-go" id="sayGo">Lançar</button>
+    </div>
+    <p class="say-dica" id="sayDica">Ex.: <b>“mercado 120”</b> · <b>“recebi salário 4200”</b> · <b>“conta de água desse mês”</b> · <b>“farmácia 89 ontem”</b></p>
+    <div class="say-card" id="sayCard" hidden></div>
+    <div class="say-ok" id="sayOkBar" hidden></div>
+    <div class="say-erro" id="sayErro" hidden></div>
+  </section>
 
   <section class="panel area-hero" aria-label="Resumo do mês">
     <div class="hero">
@@ -384,7 +453,7 @@ html{color-scheme:light dark}
 
 <p class="foot">Os dados ficam salvos só neste aparelho, no navegador. Nada é enviado para a internet.</p>
 
-<button class="fab" id="fabAdd">+ Lançamento</button>
+<button class="fab" id="fabAdd" aria-label="Novo lançamento no formulário" title="Novo lançamento">+</button>
 
 <div class="overlay" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <form class="sheet" id="txForm" autocomplete="off">
@@ -814,6 +883,312 @@ $("copyCsv").onclick = function(){
     document.body.removeChild(ta); done(ok);
   }
 };
+
+/* ---------------- lancar falando ou escrevendo ----------------
+   Tudo isso roda no proprio aparelho: a frase nunca sai daqui.
+   A ideia nao e entender qualquer frase, e sim o jeito que a gente
+   fala de conta de casa — "conta de luz 187", "mercado 120 ontem". */
+
+function semAcento(s){
+  return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+var PALAVRAS = [
+  {cat:"agua",       re:/\b(agua|saneamento|sabesp|cedae|copasa|sanepar|caesb|cagece|embasa)\b/},
+  {cat:"luz",        re:/\b(luz|energia|eletrica|eletricidade|enel|cemig|coelba|celpe|cpfl|equatorial|neoenergia|light)\b/},
+  {cat:"gas",        re:/\b(gas|botijao|botij|glp|encanado)\b/},
+  {cat:"internet",   re:/\b(internet|wifi|wi-fi|fibra|banda larga|celular|telefone|vivo|claro|tim|oi|net)\b/},
+  {cat:"moradia",    re:/\b(aluguel|condominio|iptu|moradia|imobiliaria)\b/},
+  {cat:"mercado",    re:/\b(mercado|supermercado|feira|acougue|padaria|hortifruti|quitanda|atacado|compras do mes)\b/},
+  {cat:"transporte", re:/\b(transporte|onibus|metro|uber|noventa e nove|gasolina|combustivel|alcool|etanol|passagem|taxi|estacionamento|pedagio)\b/},
+  {cat:"saude",      re:/\b(saude|farmacia|remedio|medico|dentista|exame|consulta|plano de saude|hospital)\b/},
+  {cat:"educacao",   re:/\b(educacao|escola|colegio|faculdade|curso|mensalidade|creche|material escolar)\b/},
+  {cat:"lazer",      re:/\b(lazer|cinema|pizza|restaurante|lanche|bar|netflix|spotify|streaming|ifood|delivery|viagem|passeio)\b/},
+  {cat:"cartao",     re:/\b(cartao|fatura|credito)\b/},
+  {cat:"salario",    re:/\b(salario|holerite|contracheque)\b/,             tipo:"in"},
+  {cat:"extra",      re:/\b(freela|freelance|bico|renda extra|servico extra)\b/, tipo:"in"},
+  {cat:"vendas",     re:/\b(vendi|venda|vendas)\b/,                        tipo:"in"}
+];
+var RE_ENTRADA = /\b(recebi|receber|recebido|entrou|entrada|ganhei|ganho|caiu|deposito|depositaram|adiantamento|reembolso|pix recebido)\b/;
+
+var EXTENSO = {zero:0,um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,
+  dez:10,onze:11,doze:12,treze:13,catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,
+  vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,
+  cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,
+  seiscentos:600,setecentos:700,oitocentos:800,novecentos:900,mil:1000};
+
+function numeroPorExtenso(t){
+  var toks = t.split(/\s+/), melhor = 0, total = 0, parcial = 0, ativo = false;
+  function fecha(){ var v = total + parcial; if (v > melhor) melhor = v; total = 0; parcial = 0; ativo = false; }
+  for (var i = 0; i < toks.length; i++) {
+    var w = toks[i];
+    if (w === "e" && ativo) continue;
+    if (w === "mil") { total += (parcial || 1) * 1000; parcial = 0; ativo = true; continue; }
+    if (EXTENSO[w] !== undefined) { parcial += EXTENSO[w]; ativo = true; continue; }
+    if (ativo) fecha();
+  }
+  fecha();
+  return melhor;
+}
+
+function extrairData(t, mesBase){
+  var iso = null, dia = null;
+  var m = t.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/);
+  if (m) {
+    var ano = m[3] ? (m[3].length === 2 ? "20" + m[3] : m[3]) : mesBase.slice(0,4);
+    iso = ano + "-" + pad(+m[2]) + "-" + pad(+m[1]);
+    t = t.replace(m[0], " ");
+  }
+  if (!iso && (m = t.match(/\bdia (\d{1,2})\b/))) {
+    dia = Math.min(+m[1], daysInMonth(mesBase));
+    iso = mesBase + "-" + pad(dia);
+    t = t.replace(m[0], " ");
+  }
+  if (!iso && /\banteontem\b/.test(t)) { iso = deslocaDias(-2); t = t.replace(/\banteontem\b/, " "); }
+  if (!iso && /\bontem\b/.test(t))     { iso = deslocaDias(-1); t = t.replace(/\bontem\b/, " "); }
+  if (!iso && /\bhoje\b/.test(t))      { iso = todayISO();      t = t.replace(/\bhoje\b/, " "); }
+  if (!iso && /\bmes passado\b/.test(t)) {
+    var ant = shiftMonth(mesBase, -1);
+    iso = ant + "-" + pad(Math.min(+todayISO().slice(8), daysInMonth(ant)));
+    t = t.replace(/\bmes passado\b/, " ");
+  }
+  t = t.replace(/\b(desse|deste|esse|este|do|neste|nesse) mes\b/, " ");
+  if (!iso) iso = mesBase === monthOf(todayISO()) ? todayISO() : mesBase + "-01";
+  return {iso: iso, resto: t};
+}
+
+function deslocaDias(n){
+  var d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+}
+
+function extrairValor(resto){
+  var m = resto.match(/r\$\s*([\d][\d.,]*)/)
+       || resto.match(/([\d][\d.,]*)\s*(?:reais|real|conto|contos|pila)\b/)
+       || resto.match(/\b([\d][\d.,]*)\b/);
+  if (m) { var v = parseMoney(m[1]); if (v > 0) return v; }
+  var e = numeroPorExtenso(resto);
+  return e > 0 ? e : null;
+}
+
+function limparDescricao(frase){
+  var d = String(frase)
+    .replace(/^\s*(eu\s+)?(quero\s+|vou\s+|preciso\s+)?(lan[çc]ar|lan[çc]a|lance|adicionar|adiciona|registrar|registra|anotar|anota|colocar|coloca|por|p[ôo]r)\s+/i, "")
+    .replace(/\br\$\s*[\d.,]+/ig, " ")
+    .replace(/[\d.,]+\s*(reais|real|contos?|pila)\b/ig, " ")
+    .replace(/\s+[\d.,]+\s*$/, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return d.length >= 3 ? d.charAt(0).toUpperCase() + d.slice(1) : "";
+}
+
+function interpretar(frase){
+  var t = semAcento(frase).replace(/[^\w\s,.\/\-$]/g, " ").replace(/\s+/g, " ").trim();
+  if (!t) return null;
+
+  var d = extrairData(t, view.month);
+  var valor = extrairValor(d.resto);
+
+  var catId = null, tipo = null;
+  for (var i = 0; i < PALAVRAS.length; i++) {
+    if (PALAVRAS[i].re.test(t)) { catId = PALAVRAS[i].cat; tipo = PALAVRAS[i].tipo || null; break; }
+  }
+  if (!tipo) tipo = RE_ENTRADA.test(t) ? "in" : "out";
+  if (!catId) catId = tipo === "in" ? "outrosin" : "outros";
+
+  // "conta de agua desse mes" -> se existe essa conta fixa, e ela.
+  var conta = null, jaPaga = null;
+  if (tipo === "out") {
+    var candidatas = state.bills.filter(function(b){
+      return b.cat === catId || (b.name && t.indexOf(semAcento(b.name)) !== -1);
+    });
+    conta = candidatas.filter(function(b){ return billStatus(b, view.month) !== "paid"; })[0] || null;
+    if (conta) catId = conta.cat;
+    else if (candidatas.length && !valor) jaPaga = candidatas[0];
+  }
+
+  return {
+    tipo: tipo, cat: catId, valor: valor, data: d.iso, conta: conta, jaPaga: jaPaga,
+    desc: limparDescricao(frase) || cat(catId).label, frase: frase
+  };
+}
+
+/* ---------------- cartao de confirmacao ---------------- */
+var pendente = null, ultimo = null;
+
+function escondeTudo(){
+  $("sayCard").hidden = true;
+  $("sayErro").hidden = true;
+}
+function erroFala(msg){
+  escondeTudo();
+  $("sayErro").textContent = msg;
+  $("sayErro").hidden = false;
+}
+
+function mostrarCard(p){
+  pendente = p;
+  $("sayOkBar").hidden = true;
+  $("sayErro").hidden = true;
+  var c = cat(p.cat);
+  if (p.jaPaga) {
+    pendente = null;
+    $("sayCard").hidden = true;
+    erroFala("A conta de " + p.jaPaga.name + " de " + monthName(view.month)
+      + " já está marcada como paga. Se quiser lançar outro valor, diga o valor junto.");
+    return;
+  }
+  var faltaValor = !p.valor && !p.conta;
+  var valorMostrado = p.valor || (p.conta ? p.conta.amount : 0);
+  var html = '<p class="say-frase">“' + esc(p.frase) + '”</p><div class="say-linha">'
+    + '<span class="say-chip tipo-' + p.tipo + '">' + (p.tipo === "in" ? "▲ Entrada" : "▼ Saída") + "</span>"
+    + '<span class="say-chip"><span class="dot" style="--c:' + c.color + '"></span>' + esc(c.label) + "</span>"
+    + (faltaValor ? '<span class="say-chip">valor?</span>'
+                  : '<span class="say-chip val">' + fmt(valorMostrado) + "</span>")
+    + '<span class="say-chip">' + dayLabel(p.data) + "</span></div>";
+  if (p.conta) {
+    html += '<p class="say-nota">Também marca a conta fixa <b>' + esc(p.conta.name)
+          + "</b> de " + monthName(view.month) + " como paga"
+          + (p.valor && p.valor !== p.conta.amount ? ", com esse valor no lugar de " + fmt(p.conta.amount) : "")
+          + ".</p>";
+  }
+  if (faltaValor) html += '<p class="say-nota">Não peguei o valor. Diga de novo com o valor, ou toque em Ajustar.</p>';
+  html += '<div class="say-acoes">'
+    + (faltaValor ? '<button type="button" class="btn primary" id="sayEdit">Informar valor</button>'
+                  : '<button type="button" class="btn primary" id="sayOk">Confirmar</button>'
+                    + '<button type="button" class="mini" id="sayEdit">Ajustar</button>')
+    + '<button type="button" class="mini" id="sayNo">Cancelar</button></div>';
+  $("sayCard").innerHTML = html;
+  $("sayCard").hidden = false;
+}
+
+function confirmarPendente(){
+  var p = pendente;
+  if (!p) return;
+  var valor = p.valor || (p.conta ? p.conta.amount : 0);
+  if (!(valor > 0)) return;
+  var id = uid();
+  state.tx.push({id:id, type:p.tipo, amount:valor, cat:p.cat, desc:p.desc, date:p.data});
+  ultimo = {tx:id, bill:null, mes:view.month};
+  if (p.conta) {
+    p.conta.paid = p.conta.paid || {};
+    p.conta.paid[view.month] = id;
+    ultimo.bill = p.conta.id;
+  }
+  view.month = monthOf(p.data);
+  save(); render(); escondeTudo();
+  pendente = null;
+  $("sayInput").value = "";
+  var bar = $("sayOkBar");
+  bar.innerHTML = '<span>Lançado: ' + esc(cat(p.cat).label) + " · " + fmt(valor) + "</span>"
+                + '<button type="button" id="sayUndo">Desfazer</button>';
+  bar.hidden = false;
+}
+
+function desfazerUltimo(){
+  if (!ultimo) return;
+  state.tx = state.tx.filter(function(x){ return x.id !== ultimo.tx; });
+  if (ultimo.bill) {
+    var b = state.bills.filter(function(x){ return x.id === ultimo.bill; })[0];
+    if (b && b.paid) delete b.paid[ultimo.mes];
+  }
+  ultimo = null;
+  save(); render();
+  $("sayOkBar").hidden = true;
+}
+
+function processarFrase(){
+  var frase = $("sayInput").value.trim();
+  $("sayOkBar").hidden = true;
+  if (!frase) { $("sayInput").focus(); return; }
+  var p = interpretar(frase);
+  if (!p) { erroFala("Não consegui entender. Tente algo como “conta de luz 187”."); return; }
+  mostrarCard(p);
+}
+
+$("sayGo").onclick = processarFrase;
+$("sayInput").addEventListener("keydown", function(e){
+  if (e.key === "Enter") { e.preventDefault(); processarFrase(); }
+});
+
+$("sayCard").addEventListener("click", function(e){
+  var alvo = e.target.closest ? e.target.closest("button") : null;
+  if (!alvo || !pendente) return;
+  if (alvo.id === "sayOk") confirmarPendente();
+  else if (alvo.id === "sayNo") { escondeTudo(); pendente = null; }
+  else if (alvo.id === "sayEdit") {
+    var p = pendente;
+    escondeTudo(); pendente = null;
+    openSheet("tx");
+    setType(p.tipo);
+    el.fCat.value = p.cat;
+    el.fData.value = p.data;
+    el.fDesc.value = p.desc;
+    if (p.valor || p.conta) el.fValor.value = NUM.format(p.valor || p.conta.amount);
+    setTimeout(function(){ el.fValor.focus(); el.fValor.select(); }, 40);
+  }
+});
+
+$("sayOkBar").addEventListener("click", function(e){
+  if (e.target && e.target.id === "sayUndo") desfazerUltimo();
+});
+
+/* ---------------- microfone ---------------- */
+var Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
+var rec = null, ouvindo = false;
+
+function pintarMic(){
+  $("micBtn").setAttribute("data-ouvindo", ouvindo ? "true" : "false");
+  $("micBtn").setAttribute("aria-label", ouvindo ? "Parar de gravar" : "Falar o lançamento");
+}
+
+function pararFala(){ if (rec) { try { rec.stop(); } catch(e){} } ouvindo = false; pintarMic(); }
+
+function comecarFala(){
+  try { rec = new Reconhecimento(); } catch(e){ erroFala("O microfone não abriu neste navegador."); return; }
+  rec.lang = "pt-BR";
+  rec.interimResults = true;
+  rec.continuous = false;
+  rec.maxAlternatives = 1;
+  var textoFinal = "";
+  ouvindo = true; pintarMic(); escondeTudo();
+  $("sayOkBar").hidden = true;
+  $("sayInput").value = "";
+  $("sayInput").placeholder = "Ouvindo…";
+  rec.onresult = function(ev){
+    var parcial = "";
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) textoFinal += ev.results[i][0].transcript;
+      else parcial += ev.results[i][0].transcript;
+    }
+    $("sayInput").value = (textoFinal + parcial).trim();
+  };
+  rec.onerror = function(ev){
+    ouvindo = false; pintarMic();
+    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
+      erroFala("O navegador não liberou o microfone. Dá para ditar pelo teclado: toque no campo e use o microfone do próprio teclado do celular.");
+    } else if (ev.error === "no-speech") {
+      erroFala("Não ouvi nada. Toque no microfone e fale de novo.");
+    } else if (ev.error !== "aborted") {
+      erroFala("O microfone falhou aqui. Escreva a frase no campo que funciona igual.");
+    }
+  };
+  rec.onend = function(){
+    ouvindo = false; pintarMic();
+    $("sayInput").placeholder = "Fale ou escreva: “conta de luz 187”";
+    if ($("sayInput").value.trim()) processarFrase();
+  };
+  try { rec.start(); } catch(e){ ouvindo = false; pintarMic(); }
+}
+
+if (Reconhecimento) {
+  $("micBtn").hidden = false;
+  $("micBtn").onclick = function(){ ouvindo ? pararFala() : comecarFala(); };
+} else {
+  $("sayDica").innerHTML = "Escreva do seu jeito — ou use o microfone do teclado do celular. "
+    + "Ex.: <b>“mercado 120”</b> · <b>“recebi salário 4200”</b> · <b>“conta de água desse mês”</b>";
+}
 
 /* ---------------- backup e restauracao ---------------- */
 function flash(btn, msg){
