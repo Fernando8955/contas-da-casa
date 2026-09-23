@@ -1,0 +1,15 @@
+{
+  // App estático: o Cloudflare serve a pasta dist/ direto, sem código de Worker.
+  // Para atualizar: python3 build.py && ./deploy.sh
+  "name": "contas-da-casa",
+  "compatibility_date": "2026-09-21",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "minhascontai.app", "custom_domain": true },
+    { "pattern": "www.minhascontai.app", "custom_domain": true }
+  ]
+}
