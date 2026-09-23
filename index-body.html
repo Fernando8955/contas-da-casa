@@ -150,6 +150,12 @@ input,select{font:inherit; color:inherit}
 .say-ok{padding:0 14px 12px; font-size:13px; color:var(--in); display:flex; gap:12px; align-items:center}
 .say-ok button{border:0; background:transparent; text-decoration:underline; font-size:13px; color:var(--ink-2); padding:0}
 .say-erro{padding:0 14px 12px; font-size:12.5px; color:var(--out)}
+.say-erro-msg{margin:0}
+.say-trilha{
+  margin:8px 0 0; padding:7px 9px; border-radius:8px; background:var(--surface-2);
+  color:var(--ink-3); font-family:"IBM Plex Mono",monospace; font-size:11px;
+  overflow-wrap:anywhere; line-height:1.5;
+}
 
 /* ---------- hero ---------- */
 .hero{padding:18px 18px 16px; display:grid; gap:16px}
@@ -979,11 +985,25 @@ function escondeTudo(){
   $("sayCard").hidden = true;
   $("sayErro").hidden = true;
 }
-function erroFala(msg){
+function erroFala(msg, extra){
   escondeTudo();
-  $("sayErro").textContent = msg;
+  $("sayErro").innerHTML = "<p class=\"say-erro-msg\">" + esc(msg) + "</p>" + (extra || "");
   $("sayErro").hidden = false;
 }
+
+// O caminho que funciona em qualquer aparelho: o microfone do proprio teclado.
+function blocoTeclado(){
+  return '<div class="say-acoes" style="margin-top:9px">'
+       + '<button type="button" class="mini" id="sayTeclado">Ditar pelo teclado</button></div>';
+}
+$("sayErro").addEventListener("click", function(e){
+  if (e.target && e.target.id === "sayTeclado") {
+    $("sayInput").focus();
+    $("sayErro").hidden = true;
+    $("sayDica").innerHTML = "Com o teclado aberto, toque na <b>tecla de microfone</b> dele "
+      + "(ao lado da barra de espaço) e fale. O texto cai aqui e é só tocar em Lançar.";
+  }
+});
 
 function mostrarCard(p){
   pendente = p;
@@ -1092,60 +1112,142 @@ $("sayOkBar").addEventListener("click", function(e){
   if (e.target && e.target.id === "sayUndo") desfazerUltimo();
 });
 
-/* ---------------- microfone ---------------- */
+/* ---------------- microfone ----------------
+   O sintoma relatado foi: escuta, nao conclui, e no fim nao ha nada.
+   Duas coisas causavam isso e as duas mudam aqui:
+   - o modo continuo mantinha a sessao aberta esperando um resultado que
+     em alguns navegadores so chega quando a sessao fecha;
+   - quando terminava sem texto, o codigo nao dizia nada, entao a falha
+     ficava invisivel.
+   Agora ele nunca termina calado, e guarda a trilha dos eventos do
+   navegador para dar para apontar a causa exata. */
+
 var Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
-var rec = null, ouvindo = false;
+var rec = null, ouvindo = false, relogio = null, limite = null, trilha = [];
+
+var DICA_PADRAO = $("sayDica").innerHTML;
 
 function pintarMic(){
   $("micBtn").setAttribute("data-ouvindo", ouvindo ? "true" : "false");
   $("micBtn").setAttribute("aria-label", ouvindo ? "Parar de gravar" : "Falar o lançamento");
+  $("sayInput").placeholder = ouvindo ? "Ouvindo… pode falar" : "Fale ou escreva: “conta de luz 187”";
+  $("sayDica").innerHTML = ouvindo
+    ? "Ouvindo… fale a frase e pare. Ele fecha sozinho quando você terminar."
+    : DICA_PADRAO;
 }
 
-function pararFala(){ if (rec) { try { rec.stop(); } catch(e){} } ouvindo = false; pintarMic(); }
+function limparRelogios(){ clearTimeout(relogio); clearTimeout(limite); relogio = null; limite = null; }
+
+function pararFala(){
+  limparRelogios();
+  if (rec) { try { rec.stop(); } catch(e){} }
+  ouvindo = false;
+  pintarMic();
+}
+
+function blocoTrilha(){
+  return '<div class="say-trilha">Diagnóstico: ' + esc(trilha.join(" → ") || "nada") + "</div>";
+}
+
+// Terminou sem texto: diz o que aconteceu, sempre, e oferece o caminho do teclado.
+function falhouSemTexto(){
+  var t = trilha.join(",");
+  var msg;
+  if (t.indexOf("erro:network") !== -1) {
+    msg = "O reconhecimento de fala do navegador manda o áudio para um servidor, e essa conexão falhou. "
+        + "Dá para ditar pelo teclado, que funciona sem internet.";
+  } else if (t.indexOf("fala") === -1 && t.indexOf("som") === -1) {
+    msg = "O microfone abriu mas não chegou som nenhum. Veja se outro app está usando o microfone, "
+        + "ou se o aparelho está mudo para gravação.";
+  } else {
+    msg = "Ele captou o áudio, mas o navegador não devolveu nenhuma transcrição. "
+        + "Isso acontece bastante no Safari e no app instalado no iPhone.";
+  }
+  erroFala(msg, blocoTeclado() + blocoTrilha());
+}
 
 function comecarFala(){
-  try { rec = new Reconhecimento(); } catch(e){ erroFala("O microfone não abriu neste navegador."); return; }
+  try { rec = new Reconhecimento(); }
+  catch(e){ erroFala("O microfone não abriu neste navegador.", blocoTeclado()); return; }
+
+  trilha = [];
   rec.lang = "pt-BR";
   rec.interimResults = true;
-  rec.continuous = false;
+  rec.continuous = false;   // frase curta: deixa o navegador fechar sozinho no fim da fala
   rec.maxAlternatives = 1;
+
   var textoFinal = "";
-  ouvindo = true; pintarMic(); escondeTudo();
+  ouvindo = true;
+  pintarMic();
+  escondeTudo();
   $("sayOkBar").hidden = true;
   $("sayInput").value = "";
-  $("sayInput").placeholder = "Ouvindo…";
+
+  rec.onstart      = function(){ trilha.push("iniciou"); limite = setTimeout(pararFala, 20000); };
+  rec.onaudiostart = function(){ trilha.push("audio"); };
+  rec.onsoundstart = function(){ trilha.push("som"); };
+  rec.onspeechstart= function(){ trilha.push("fala"); clearTimeout(relogio); };
+  rec.onspeechend  = function(){ trilha.push("fim da fala"); };
+
   rec.onresult = function(ev){
     var parcial = "";
     for (var i = ev.resultIndex; i < ev.results.length; i++) {
-      if (ev.results[i].isFinal) textoFinal += ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) textoFinal += ev.results[i][0].transcript + " ";
       else parcial += ev.results[i][0].transcript;
     }
-    $("sayInput").value = (textoFinal + parcial).trim();
+    var texto = (textoFinal + parcial).replace(/\s+/g, " ").trim();
+    $("sayInput").value = texto;
+    trilha.push("texto(" + texto.length + ")");
+    clearTimeout(relogio);
+    relogio = setTimeout(pararFala, 2500);   // encerra após o silêncio, já com texto na mão
   };
+
   rec.onerror = function(ev){
-    ouvindo = false; pintarMic();
-    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
-      erroFala("O navegador não liberou o microfone. Dá para ditar pelo teclado: toque no campo e use o microfone do próprio teclado do celular.");
-    } else if (ev.error === "no-speech") {
-      erroFala("Não ouvi nada. Toque no microfone e fale de novo.");
-    } else if (ev.error !== "aborted") {
-      erroFala("O microfone falhou aqui. Escreva a frase no campo que funciona igual.");
+    var c = (ev && ev.error) || "desconhecido";
+    trilha.push("erro:" + c);
+    if (c === "aborted") return;              // fomos nós que paramos; o onend resolve
+    limparRelogios();
+    ouvindo = false;
+    pintarMic();
+    if (c === "no-speech") {
+      erroFala("Não ouvi nada. Toque no microfone e fale logo em seguida — ele não espera muito.", blocoTeclado());
+    } else if (c === "not-allowed" || c === "service-not-allowed") {
+      erroFala("O microfone está bloqueado para este site. No Chrome: cadeado ao lado do endereço → Permissões → Microfone. "
+        + "No iPhone: Ajustes → Safari → Microfone.", blocoTeclado() + blocoTrilha());
+    } else if (c === "audio-capture") {
+      erroFala("O aparelho não entregou o áudio. Veja se outro app está com o microfone aberto.", blocoTeclado() + blocoTrilha());
+    } else {
+      falhouSemTexto();
     }
   };
+
   rec.onend = function(){
-    ouvindo = false; pintarMic();
-    $("sayInput").placeholder = "Fale ou escreva: “conta de luz 187”";
-    if ($("sayInput").value.trim()) processarFrase();
+    trilha.push("encerrou");
+    limparRelogios();
+    ouvindo = false;
+    pintarMic();
+    // resultado final às vezes chega depois do encerramento
+    setTimeout(function(){
+      if ($("sayInput").value.trim()) processarFrase();
+      else if (!$("sayErro").hidden) return;   // o onerror já explicou
+      else falhouSemTexto();
+    }, 400);
   };
-  try { rec.start(); } catch(e){ ouvindo = false; pintarMic(); }
+
+  try { rec.start(); }
+  catch(e){
+    ouvindo = false; pintarMic();
+    erroFala("O microfone não iniciou (" + ((e && e.name) || "erro") + ").", blocoTeclado());
+  }
 }
 
 if (Reconhecimento) {
   $("micBtn").hidden = false;
   $("micBtn").onclick = function(){ ouvindo ? pararFala() : comecarFala(); };
 } else {
-  $("sayDica").innerHTML = "Escreva do seu jeito — ou use o microfone do teclado do celular. "
+  $("sayDica").innerHTML = "Escreva do seu jeito — ou toque no campo e use o microfone do teclado do celular. "
     + "Ex.: <b>“mercado 120”</b> · <b>“recebi salário 4200”</b> · <b>“conta de água desse mês”</b>";
+  DICA_PADRAO = $("sayDica").innerHTML;
 }
 
 /* ---------------- backup e restauracao ---------------- */
