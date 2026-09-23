@@ -15,7 +15,11 @@ próprio aparelho: nada é enviado para servidor nenhum.
 - Orçamento mensal com barra que avisa ao passar de 80% e ao estourar
 - Gastos por categoria em barras
 - Exportar os lançamentos em CSV para Excel ou Google Sheets
-- Tema claro e escuro automático
+- **Backup e restauração** em arquivo `.json` — importante, porque limpar os
+  dados do navegador apaga tudo
+- Atalhos no ícone do app (segure o ícone): "Nova saída" e "Nova entrada"
+- Tela de abertura própria no iPhone, sem o flash branco do Safari
+- Tema claro e escuro automático, e funciona offline depois da primeira visita
 
 ## Instalar no celular
 
@@ -31,7 +35,9 @@ próprio aparelho: nada é enviado para servidor nenhum.
 | `build.py` | regera o `index.html` |
 | `manifest.webmanifest` | nome, cores e ícones do app instalado |
 | `sw.js` | service worker — é o que faz funcionar offline |
-| `icons/` | ícones 192px, 512px e a versão *maskable* |
+| `icons/` | ícones 192px, 512px, *maskable* e favicon |
+| `favicon.ico` | ícone da aba do navegador |
+| `splash/` | 17 telas de abertura do iPhone e iPad, e `links.html` com as media queries que o `build.py` injeta |
 
 ## Rodar na sua máquina
 

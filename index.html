@@ -4,16 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Contas da Casa</title>
-<meta name="description" content="Controle simples de entradas e saidas da casa: luz, agua, gas, internet, aluguel e mercado.">
+<meta name="description" content="Controle simples de entradas e saidas da casa: luz, agua, gas, internet, aluguel e mercado. Funciona offline e guarda tudo no proprio aparelho.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#F1F4F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111613" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Contas">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="icons/icon-192.png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-startup-image" href="splash/640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1620x2160.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1668x2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -61,6 +82,7 @@ body{
   font-size:15px; line-height:1.45;
   -webkit-font-smoothing:antialiased;
   padding-bottom:104px;
+  overscroll-behavior-y:contain;
 }
 h1,h2,h3{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",Arial,sans-serif; margin:0; text-wrap:balance; letter-spacing:-.01em}
 button{font:inherit; color:inherit; cursor:pointer}
@@ -138,8 +160,8 @@ input,select{font:inherit; color:inherit}
 .budget-top label{font-size:12.5px; color:var(--ink-2)}
 .budget-field{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-3)}
 #budgetInput{
-  width:96px; text-align:right; background:var(--surface-3); border:1px solid var(--line);
-  border-radius:8px; padding:4px 8px; font-family:"IBM Plex Mono",monospace; font-size:13px;
+  width:118px; text-align:right; background:var(--surface-3); border:1px solid var(--line);
+  border-radius:8px; padding:5px 9px; font-family:"IBM Plex Mono",monospace; font-size:16px;
   font-variant-numeric:tabular-nums;
 }
 .bar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden}
@@ -240,7 +262,7 @@ input,select{font:inherit; color:inherit}
 .field label{font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3)}
 .field input,.field select{
   background:var(--surface-3); border:1px solid var(--line); border-radius:10px;
-  padding:10px 12px; font-size:15px; width:100%;
+  padding:10px 12px; font-size:16px; width:100%;
 }
 .field.val input{font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums}
 .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
@@ -344,8 +366,11 @@ html{color-scheme:light dark}
     <div class="cats" id="catList"></div>
     <div class="tools">
       <button class="mini" id="copyCsv">Copiar planilha (CSV)</button>
+      <button class="mini" id="backup">Salvar backup</button>
+      <button class="mini" id="restore">Restaurar backup</button>
       <button class="mini danger" id="resetAll">Apagar tudo</button>
     </div>
+    <input type="file" id="restoreFile" accept="application/json,.json" hidden>
   </section>
 
 </main>
@@ -354,7 +379,7 @@ html{color-scheme:light dark}
 
 <button class="fab" id="fabAdd">+ Lançamento</button>
 
-<div class="overlay" id="sheet" hidden>
+<div class="overlay" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <form class="sheet" id="txForm" autocomplete="off">
     <h2 id="sheetTitle">Novo lançamento</h2>
     <div class="seg" role="group" aria-label="Tipo">
@@ -783,6 +808,72 @@ $("copyCsv").onclick = function(){
   }
 };
 
+/* ---------------- backup e restauracao ---------------- */
+function flash(btn, msg){
+  var original = btn.dataset.label || btn.textContent;
+  btn.dataset.label = original;
+  btn.textContent = msg;
+  setTimeout(function(){ btn.textContent = btn.dataset.label; }, 2200);
+}
+
+$("backup").onclick = function(){
+  var btn = this;
+  var dump = JSON.stringify({app:"contas-da-casa", versao:1, salvoEm:new Date().toISOString(), dados:state}, null, 2);
+  // No preview dentro de um iframe o navegador bloqueia download; ali o backup
+  // vai para a area de transferencia para o botao nao mentir que salvou.
+  var emIframe = false;
+  try { emIframe = window.top !== window.self; } catch(e){ emIframe = true; }
+  if (emIframe && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(dump).then(
+      function(){ flash(btn, "Backup copiado"); },
+      function(){ flash(btn, "Nao deu para copiar"); }
+    );
+    return;
+  }
+  try {
+    var blob = new Blob([dump], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "contas-da-casa-" + todayISO() + ".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    flash(btn, "Backup salvo");
+  } catch(e){ flash(btn, "Nao deu para salvar"); }
+};
+
+$("restore").onclick = function(){ $("restoreFile").click(); };
+
+$("restoreFile").onchange = function(){
+  var file = this.files && this.files[0];
+  var btn = $("restore");
+  this.value = "";
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function(){
+    var d;
+    try { d = JSON.parse(r.result); } catch(e){ flash(btn, "Arquivo invalido"); return; }
+    var dados = d && d.dados ? d.dados : d;
+    if (!dados || !Array.isArray(dados.tx) || !Array.isArray(dados.bills)) { flash(btn, "Arquivo invalido"); return; }
+    var quantos = dados.tx.length;
+    if (!confirm("Restaurar " + quantos + " lancamentos deste backup? O que esta no aparelho agora sera substituido.")) return;
+    state = {tx:dados.tx, bills:dados.bills, budget:dados.budget || {}, demo:false};
+    view.month = monthOf(todayISO());
+    save(); render(); flash(btn, "Backup restaurado");
+  };
+  r.onerror = function(){ flash(btn, "Nao deu para ler"); };
+  r.readAsText(file);
+};
+
+/* ---------------- atalhos do app instalado ---------------- */
+try {
+  var atalho = new URLSearchParams(location.search).get("novo");
+  if (atalho === "saida" || atalho === "entrada") {
+    openSheet("tx");
+    setType(atalho === "entrada" ? "in" : "out");
+    history.replaceState(null, "", location.pathname);
+  }
+} catch(e){}
+
 fillCats();
 render();
 })();
@@ -790,7 +881,17 @@ render();
 
 
 <script>
+/* Service worker: faz o app abrir offline e se atualizar sozinho.
+   Quando uma versao nova assume o controle, a pagina recarrega uma vez —
+   sem isso o celular continuaria mostrando a versao do cache. */
 if ("serviceWorker" in navigator) {
+  var jaTinhaSW = !!navigator.serviceWorker.controller;
+  var recarregando = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if (!jaTinhaSW || recarregando) return;
+    recarregando = true;
+    location.reload();
+  });
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").catch(function(){});
   });
